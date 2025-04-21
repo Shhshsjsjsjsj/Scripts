@@ -1,0 +1,88 @@
+local function modifyGuidingShears(tool)
+    for _, descendant in ipairs(tool:GetDescendants()) do
+        if descendant:IsA("BasePart") then
+            descendant.Color = Color3.fromRGB(0, 255, 255)
+            descendant.Material = Enum.Material.Neon
+        elseif descendant:IsA("ParticleEmitter") and descendant.Name == "DustEmitter" then
+            descendant.Texture = "rbxassetid://76111955799477"
+            descendant.Color = ColorSequence.new(Color3.fromRGB(0, 255, 255))
+        end
+    end
+
+    for _, part in ipairs(tool:GetDescendants()) do
+        if part:IsA("BasePart") and not part:FindFirstChild("Light") then
+            local light = Instance.new("PointLight")
+            light.Brightness = 0.5
+            light.Range = 15
+            light.Color = Color3.fromRGB(0, 255, 255)
+            light.Parent = part
+        end
+    end
+end
+
+local function highlightSpecificModels()
+    local modelsToHighlight = {
+        Red = {"DoorFake", "RushMoving", "AmbushMoving", "FigureRig", "Eyes"},
+        Cyan = {"Door"}
+    }
+
+    local function createHighlight(part, color)
+        local highlight = part:FindFirstChild("Highlight")
+        if not highlight then
+            highlight = Instance.new("Highlight")
+            highlight.FillColor = color
+            highlight.OutlineTransparency = 1
+            highlight.Parent = part
+        else
+            highlight.FillColor = color
+        end
+    end
+
+    for _, descendant in ipairs(game:GetDescendants()) do
+        for colorType, modelNames in pairs(modelsToHighlight) do
+            for _, modelName in ipairs(modelNames) do
+                if descendant:IsA("Model") and descendant.Name == modelName then
+                    for _, part in ipairs(descendant:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            if colorType == "Red" then
+                                createHighlight(part, Color3.fromRGB(255, 0, 0))
+                            elseif colorType == "Cyan" then
+                                createHighlight(part, Color3.fromRGB(0, 255, 255))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function onToolAdded(tool)
+    if tool.Name == "Shears" then
+        tool.ToolTip = "Guiding Shears"
+        if tool:FindFirstChild("Handle") then
+            modifyGuidingShears(tool)
+        end
+        tool.TextureId = "rbxassetid://94948504027433"
+        highlightSpecificModels()
+    end
+end
+
+local function monitorToolAdded()
+    game.Players.LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+        if child.Name == "Shears" then
+            onToolAdded(child)
+        end
+    end)
+end
+
+local function applyToExistingTools()
+    for _, tool in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        if tool.Name == "Shears" then
+            onToolAdded(tool)
+        end
+    end
+end
+
+applyToExistingTools()
+monitorToolAdded()
