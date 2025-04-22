@@ -1,4 +1,4 @@
--- MischeviousLight.lua
+-- MischeviousLight.lu
 -- [Comet Development] By Chrono
 -- This file is part of the Hotel ++ Project.
 -- + Cred to Dripo for that stupid sound path for the original guiding lighht music 😄
