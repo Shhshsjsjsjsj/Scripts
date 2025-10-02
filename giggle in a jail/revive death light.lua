@@ -1,7 +1,3 @@
--- MischeviousLight.lu
--- [Comet Development] By Chrono
--- This file is part of the Hotel ++ Project.
--- + Cred to Dripo for that stupid sound path for the original guiding lighht music 😄
 
 _G.DO_RED_GUY = true -- enabled for debugging purposes only.
 
