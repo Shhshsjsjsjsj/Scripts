@@ -92,16 +92,12 @@ doorLooping = false
 local remotesFolder = game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder", 5)
 
 if remotesFolder then
-	print("[DEBUG] Found RemotesFolder.")
 	local playAgainRemote = remotesFolder:WaitForChild("PlayAgain", 5)
 	
-	if playAgainRemote then
-		print("[DEBUG] Found PlayAgain remote. Firing once...")
+	if playAgainRemote and not _G.hasFiredPlayAgain then
+		_G.hasFiredPlayAgain = true
+		print("[DEBUG] Found PlayAgain remote. Firing single time...")
 		playAgainRemote:FireServer()
 		print("[DEBUG] Finished firing PlayAgain remote.")
-	else
-		warn("[DEBUG WARN] Could not find 'PlayAgain' inside RemotesFolder!")
 	end
-else
-	warn("[DEBUG WARN] Could not find 'RemotesFolder' in ReplicatedStorage!")
 end
