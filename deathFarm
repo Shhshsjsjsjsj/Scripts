@@ -96,12 +96,8 @@ if remotesFolder then
 	local playAgainRemote = remotesFolder:WaitForChild("PlayAgain", 5)
 	
 	if playAgainRemote then
-		print("[DEBUG] Found PlayAgain remote. Firing...")
-		for i = 1, 5 do
-			print("[DEBUG] FireServer call #" .. i)
-			playAgainRemote:FireServer()
-			task.wait(0.2)
-		end
+		print("[DEBUG] Found PlayAgain remote. Firing once...")
+		playAgainRemote:FireServer()
 		print("[DEBUG] Finished firing PlayAgain remote.")
 	else
 		warn("[DEBUG WARN] Could not find 'PlayAgain' inside RemotesFolder!")
