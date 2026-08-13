@@ -1,0 +1,93 @@
+repeat task.wait() until game:IsLoaded()
+
+
+local function missing(t, f, fallback)
+	if type(f) == t then return f end
+	return fallback
+end
+
+
+local queueteleport = missing("function", queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport))
+
+task.spawn(function()
+	while task.wait() do
+		if game.Players.LocalPlayer then break end
+	end
+	game:GetService("Players").LocalPlayer.OnTeleport:Connect(function()
+		if queueteleport then
+			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/IdkMyNameLoll/PublicScripts/refs/heads/main/SuperCoolDoorsAutoDeathFarmV12'))()")
+		end
+	end)
+end)
+
+
+repeat task.wait() until workspace:FindFirstChild("StarterElevator", true)
+repeat task.wait() until game.Players.LocalPlayer.Character
+repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+task.wait(2)
+
+
+local cewcew = true
+
+task.spawn(function()
+	while cewcew do
+		local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder")
+		if remotes and remotes:FindFirstChild("Crouch") then
+			remotes.Crouch:FireServer(true, true)
+		end
+		task.wait()
+	end
+end)
+
+
+local function createNewMovingPath(pos)
+	if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		game.Players.LocalPlayer.Character:PivotTo(CFrame.new(pos))
+	end
+	return true
+end
+
+
+local currentRoom0 = workspace:WaitForChild("CurrentRooms"):WaitForChild("0")
+local keyHitbox = currentRoom0:WaitForChild("Assets"):WaitForChild("KeyObtain"):WaitForChild("Hitbox")
+local keyPrompt = currentRoom0:FindFirstChild("KeyObtain", true).ModulePrompt
+
+repeat 
+	createNewMovingPath(keyHitbox.Position + Vector3.new(0, 0, 5))
+	if keyPrompt and keyPrompt:IsDescendantOf(workspace) then
+		fireproximityprompt(keyPrompt)
+	end
+	task.wait(0.05)
+until game.Players.LocalPlayer.Character:FindFirstChild("Key")
+
+
+local doorPrompt = currentRoom0:FindFirstChild("UnlockPrompt", true)
+local roomExit = currentRoom0:WaitForChild("RoomExit")
+
+while currentRoom0:GetAttribute("Opened") ~= true do
+	createNewMovingPath(roomExit.Position + Vector3.new(0, 0, 5))
+	if doorPrompt and doorPrompt:IsDescendantOf(workspace) then
+		fireproximityprompt(doorPrompt)
+	end
+	task.wait(0.05)
+end
+
+
+cewcew = false -- Stop crouch loop
+
+
+local player = game.Players.LocalPlayer
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+	if player.Character.Humanoid.Health > 0 then
+		player.Character.Humanoid.Died:Wait()
+	end
+end
+
+task.wait(1)
+
+local playAgainRemote = game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") 
+						and game:GetService("ReplicatedStorage").RemotesFolder:FindFirstChild("PlayAgain")
+
+if playAgainRemote then
+	playAgainRemote:FireServer()
+end
