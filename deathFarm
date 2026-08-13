@@ -1,35 +1,37 @@
-repeat task.wait() until game:IsLoaded()
-
-
 local function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
 end
 
-
 local queueteleport = missing("function", queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport))
 
+print("[DEBUG] Setting up OnTeleport listener...")
 task.spawn(function()
 	while task.wait() do
 		if game.Players.LocalPlayer then break end
 	end
 	game:GetService("Players").LocalPlayer.OnTeleport:Connect(function()
 		if queueteleport then
+			print("[DEBUG] Teleporting - queueing script load...")
 			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/IdkMyNameLoll/PublicScripts/refs/heads/main/SuperCoolDoorsAutoDeathFarmV12'))()")
 		end
 	end)
 end)
 
-
+print("[DEBUG] Waiting for StarterElevator...")
 repeat task.wait() until workspace:FindFirstChild("StarterElevator", true)
+print("[DEBUG] StarterElevator found.")
+
+print("[DEBUG] Waiting for Character & HumanoidRootPart...")
 repeat task.wait() until game.Players.LocalPlayer.Character
 repeat task.wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 task.wait(2)
-
+print("[DEBUG] Character ready.")
 
 local cewcew = true
 
 task.spawn(function()
+	print("[DEBUG] Starting Crouch loop...")
 	while cewcew do
 		local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder")
 		if remotes and remotes:FindFirstChild("Crouch") then
@@ -37,8 +39,8 @@ task.spawn(function()
 		end
 		task.wait()
 	end
+	print("[DEBUG] Crouch loop stopped.")
 end)
-
 
 local function createNewMovingPath(pos)
 	if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -47,47 +49,63 @@ local function createNewMovingPath(pos)
 	return true
 end
 
-
+print("[DEBUG] Waiting for Room 0...")
 local currentRoom0 = workspace:WaitForChild("CurrentRooms"):WaitForChild("0")
 local keyHitbox = currentRoom0:WaitForChild("Assets"):WaitForChild("KeyObtain"):WaitForChild("Hitbox")
-local keyPrompt = currentRoom0:FindFirstChild("KeyObtain", true).ModulePrompt
 
+print("[DEBUG] Teleporting to Key...")
 repeat 
+	local keyPrompt = currentRoom0:FindFirstChild("KeyObtain", true) and currentRoom0:FindFirstChild("KeyObtain", true):FindFirstChild("ModulePrompt")
 	createNewMovingPath(keyHitbox.Position + Vector3.new(0, 0, 5))
 	if keyPrompt and keyPrompt:IsDescendantOf(workspace) then
 		fireproximityprompt(keyPrompt)
 	end
 	task.wait(0.05)
 until game.Players.LocalPlayer.Character:FindFirstChild("Key")
+print("[DEBUG] Key obtained!")
 
-
-local doorPrompt = currentRoom0:FindFirstChild("UnlockPrompt", true)
 local roomExit = currentRoom0:WaitForChild("RoomExit")
 
-while currentRoom0:GetAttribute("Opened") ~= true do
-	createNewMovingPath(roomExit.Position + Vector3.new(0, 0, 5))
-	if doorPrompt and doorPrompt:IsDescendantOf(workspace) then
-		fireproximityprompt(doorPrompt)
+print("[DEBUG] Unlocking Door & starting continuous TP loop...")
+
+local doorLooping = true
+
+task.spawn(function()
+	while doorLooping do
+		local doorPrompt = currentRoom0:FindFirstChild("UnlockPrompt", true)
+		createNewMovingPath(roomExit.Position + Vector3.new(0, 0, 5))
+		
+		if doorPrompt and doorPrompt:IsDescendantOf(workspace) then
+			fireproximityprompt(doorPrompt)
+		end
+		task.wait(0.05)
 	end
-	task.wait(0.05)
-end
+end)
 
+cewcew = false
 
-cewcew = false -- Stop crouch loop
+print("[DEBUG] Waiting 8 seconds before sending PlayAgain...")
+task.wait(8)
 
+doorLooping = false
 
-local player = game.Players.LocalPlayer
-if player.Character and player.Character:FindFirstChild("Humanoid") then
-	if player.Character.Humanoid.Health > 0 then
-		player.Character.Humanoid.Died:Wait()
+local remotesFolder = game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder", 5)
+
+if remotesFolder then
+	print("[DEBUG] Found RemotesFolder.")
+	local playAgainRemote = remotesFolder:WaitForChild("PlayAgain", 5)
+	
+	if playAgainRemote then
+		print("[DEBUG] Found PlayAgain remote. Firing...")
+		for i = 1, 5 do
+			print("[DEBUG] FireServer call #" .. i)
+			playAgainRemote:FireServer()
+			task.wait(0.2)
+		end
+		print("[DEBUG] Finished firing PlayAgain remote.")
+	else
+		warn("[DEBUG WARN] Could not find 'PlayAgain' inside RemotesFolder!")
 	end
-end
-
-task.wait(1)
-
-local playAgainRemote = game:GetService("ReplicatedStorage"):FindFirstChild("RemotesFolder") 
-						and game:GetService("ReplicatedStorage").RemotesFolder:FindFirstChild("PlayAgain")
-
-if playAgainRemote then
-	playAgainRemote:FireServer()
+else
+	warn("[DEBUG WARN] Could not find 'RemotesFolder' in ReplicatedStorage!")
 end
