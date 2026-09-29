@@ -15,7 +15,7 @@ end)
 
 task.wait(.25)
 
-local settings = ... or {["conker"]=true;["autoserverhop"]=8;["renderdisable"]=false;["power"]=300}
+local settings = ... or {["conker"]=true;["autoserverhop"]=7;["renderdisable"]=false;["power"]=300}
 
 if settings.renderdisable and settings.renderdisable==true then
 game:GetService("RunService"):Set3dRenderingEnabled(false)
